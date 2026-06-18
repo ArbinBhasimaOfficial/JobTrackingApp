@@ -12,7 +12,7 @@ const PORT = process.env.PORT;
 const DEV_MODE = process.env.DEV_MODE;
 
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "https://job-tracking-app-theta.vercel.app/",
   credentials: true
 }));
 app.use(express.json());
