@@ -1,8 +1,7 @@
 import dotenv from "dotenv";
 import pkgClient from "@prisma/client";
-import pg from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
 import pc from "picocolors";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
 dotenv.config();
 
@@ -13,22 +12,19 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const basePrisma = new PrismaClient();
 
-const adapter = new PrismaPg(pool);
-
-const prisma = new PrismaClient({ adapter });
+const prisma = basePrisma.$extends(withAccelerate());
 
 export async function connectDB() {
   try {
-    // Test the adapter connection pool
-    await prisma.$connect();
+    await basePrisma.$connect();
     console.log(
       pc.cyan(
-        "Seamless connection to PostgreSQL database via Prisma 7 Driver Adapter!",
+        " Connected to PostgreSQL database via Prisma Cloud!",
       ),
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error(pc.red("Database connection error: "), error.message);
     process.exit(1);
   }
