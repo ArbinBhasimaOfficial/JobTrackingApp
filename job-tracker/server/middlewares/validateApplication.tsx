@@ -5,39 +5,58 @@ import {
 } from "express-validator";
 import { type Request, type Response, type NextFunction } from "express";
 
-const rules: ValidationChain[] = [
+const rules = (isPatch: boolean): ValidationChain[] => [
   body("companyName")
-    .trim()
+    .if(() => !isPatch || body("companyName").exists()).trim()
     .isLength({ min: 2 })
     .withMessage("Company name must be at least 2 characters."),
-  body("jobTitle").trim().notEmpty().withMessage("Job title is required."),
+
+  body("jobTitle")
+    .if(() => !isPatch || body("jobTitle").exists())
+    .trim()
+    .notEmpty()
+    .withMessage("Job title is required."),
+
   body("jobType")
-    .isIn(["Internship", "Full_time", "Part_time"])
+    .if(() => !isPatch || body("jobType").exists())
+    .isIn(["Full_time", "Internship", "Part_time"])
     .withMessage("Invalid job type."),
+
   body("status")
+    .if(() => !isPatch || body("status").exists())
     .isIn([
       "Pending",
       "Viewed",
-      "Shortlisted",
+      "Shortlisted  ",
       "Offered",
       "Hired",
       "Rejected",
       "Withdrawn",
     ])
     .withMessage("Invalid status."),
-  body("appliedDate").isISO8601().withMessage("Invalid date format."),
+
+  body("appliedDate")
+    .if(() => !isPatch || body("appliedDate").exists())
+    .isISO8601()
+    .withMessage("Invalid date format."),
+
   body("notes")
-    .optional({ values: "falsy" }) // Allows empty or missing notes
+    .optional({ values: "falsy" })
     .trim(),
 ];
 
-export const validateApplication = [
-  ...rules,
-  (req: Request, res: Response, next: NextFunction) => {
+export const validateApplication = (req: Request, res: Response, next: NextFunction) => {
+  const isPatch = req.method === "PATCH";
+  const activeRules = rules(isPatch);
+
+  Promise.all(activeRules.map((rule) => rule.run(req))).then(() => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // ADD THIS LOG RIGHT HERE:
+      console.log("VALIDATION FAILED FOR REGISTRATION:", errors.array());
+
       return res.status(400).json({ errors: errors.array() });
     }
     next();
-  },
-];
+  });
+};

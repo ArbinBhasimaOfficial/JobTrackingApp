@@ -84,13 +84,33 @@ export const createApplication = async (
 };
 
 export const updateApplication = async (
-  req: Request<{ id: string }, {}, Prisma.ApplicationUpdateInput>,
+  req: Request<
+    { id: string },
+    {},
+    {
+      companyName?: string;
+      jobTitle?: string;
+      jobType?: JobType;
+      status?: ApplicationStatus;
+      appliedDate?: string;
+      notes?: string;
+    }
+  >,
   res: Response,
 ) => {
   try {
+    const { appliedDate, notes, ...rest } = req.body;
+
+    // FIX: Reconstruct data object to cleanly parse incoming values
+    const data: Prisma.ApplicationUpdateInput = {
+      ...rest,
+      ...(appliedDate ? { appliedDate: new Date(appliedDate) } : {}),
+      ...(notes !== undefined ? { notes: notes && notes.trim() !== "" ? notes : null } : {}),
+    };
+
     const updatedApp = await prisma.application.update({
       where: { id: req.params.id },
-      data: req.body,
+      data,
     });
     res.json(updatedApp);
   } catch (error: unknown) {
