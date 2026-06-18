@@ -27,7 +27,7 @@ const rules = (isPatch: boolean): ValidationChain[] => [
     .isIn([
       "Pending",
       "Viewed",
-      "Shortlisted  ",
+      "Shortlisted",
       "Offered",
       "Hired",
       "Rejected",
@@ -52,7 +52,6 @@ export const validateApplication = (req: Request, res: Response, next: NextFunct
   Promise.all(activeRules.map((rule) => rule.run(req))).then(() => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      // ADD THIS LOG RIGHT HERE:
       console.log("VALIDATION FAILED FOR REGISTRATION:", errors.array());
 
       return res.status(400).json({ errors: errors.array() });

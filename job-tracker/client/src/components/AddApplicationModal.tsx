@@ -24,13 +24,13 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
     defaultValues: initialData ? {
       companyName: initialData.companyName,
       jobTitle: initialData.jobTitle,
-      jobType: initialData.jobType as "FULL_TIME" | "INTERNSHIP" | "PART_TIME",
+      jobType: initialData.jobType as "Full_time" | "Internship" | "Part_time",
       status: initialData.status as typeof APPLICATION_STATUSES[number],
       appliedDate: new Date(initialData.appliedDate).toISOString().split('T')[0],
       notes: initialData.notes || ''
     } : {
-      status: 'PENDING',
-      jobType: 'FULL_TIME',
+      status: 'Pending',
+      jobType: 'Full_time',
       companyName: '',
       jobTitle: '',
       appliedDate: new Date().toISOString().split('T')[0],
@@ -64,14 +64,12 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
 
   return (
     <>
-      {/* Backdrop overlay layer */}
       <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
         <dialog
           ref={modalRef}
           open
           className="relative z-50 p-0 m-0 bg-white rounded-xl shadow-2xl border border-slate-100 max-w-[540px] w-full flex flex-col overflow-hidden"
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
             <h2 className="text-base font-bold text-slate-900">
               {initialData ? 'Edit Application' : 'Add Application'}
@@ -86,8 +84,6 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
               </svg>
             </button>
           </div>
-
-          {/* Form */}
           <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="p-6 flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               {/* Company Input */}
@@ -100,8 +96,6 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
                 />
                 {errors.companyName && <p className="text-red-500 text-xs font-medium mt-0.5">{errors.companyName.message}</p>}
               </div>
-
-              {/* Title Input */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-slate-700">Job Title *</label>
                 <input
@@ -112,22 +106,18 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
                 {errors.jobTitle && <p className="text-red-500 text-xs font-medium mt-0.5">{errors.jobTitle.message}</p>}
               </div>
             </div>
-
             <div className="grid grid-cols-2 gap-4">
-              {/* Job Type */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-slate-700">Job Type</label>
                 <select
                   {...register('jobType')}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer text-slate-800"
                 >
-                  <option value="FULL_TIME">Full-time</option>
-                  <option value="INTERNSHIP">Internship</option>
-                  <option value="PART_TIME">Part-time</option>
+                  <option value="Full_time">Full-time</option>
+                  <option value="Internship">Internship</option>
+                  <option value="Part_time">Part-time</option>
                 </select>
               </div>
-
-              {/* Status Selector synced to APPLICATION_STATUSES */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-slate-700">Status</label>
                 <select
@@ -145,8 +135,6 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
                 </select>
               </div>
             </div>
-
-            {/* Date Picker */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-700">Applied Date *</label>
               <input
@@ -155,8 +143,6 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800"
               />
             </div>
-
-            {/* Notes */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-700">Notes (Optional)</label>
               <textarea
@@ -166,8 +152,6 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none placeholder:text-slate-400 text-slate-800"
               />
             </div>
-
-            {/* Actions */}
             <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100 mt-2">
               <button
                 type="button"
@@ -187,8 +171,6 @@ export default function AddApplicationModal({ onClose, initialData }: Props) {
           </form>
         </dialog>
       </div>
-
-      {/* Floating Success Notification Toast */}
       {showToast && (
         <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 border border-slate-800/50 transition-all">
           <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">

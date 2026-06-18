@@ -18,7 +18,6 @@ export default function ApplicationFormModal({ onClose, initialData }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
-  // Safely formats initial data for HTML5 inputs
   const formatInitialData = (): ApplicationFormData => {
     if (!initialData) {
       return {

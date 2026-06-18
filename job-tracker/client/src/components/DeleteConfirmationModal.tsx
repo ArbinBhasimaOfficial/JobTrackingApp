@@ -23,7 +23,6 @@ export default function DeleteConfirmationModal({ application, onClose }: Props)
       return response.data;
     },
     onSuccess: () => {
-      // Refresh your application tables seamlessly in the dashboard layout
       queryClient.invalidateQueries({ queryKey: ['applications'] });
       onClose();
     },
@@ -33,7 +32,6 @@ export default function DeleteConfirmationModal({ application, onClose }: Props)
     }
   });
 
-  // GSAP clean entrance matching the form layout animations
   useGSAP(() => {
     gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.2 });
     gsap.fromTo(modalRef.current, { opacity: 0, scale: 0.95, y: 10 }, { opacity: 1, scale: 1, y: 0, duration: 0.25 });
@@ -42,8 +40,6 @@ export default function DeleteConfirmationModal({ application, onClose }: Props)
   return (
     <div ref={overlayRef} className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
       <dialog ref={modalRef} open className="relative p-0 m-0 bg-white rounded-xl shadow-2xl border border-slate-100 max-w-[460px] w-full flex flex-col overflow-hidden text-left animate-none">
-
-        {/* Core Warning Content */}
         <div className="p-6 pb-4 flex gap-4 items-start">
           <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 border border-red-100 text-red-500">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -57,8 +53,6 @@ export default function DeleteConfirmationModal({ application, onClose }: Props)
             </p>
           </div>
         </div>
-
-        {/* Selected Application Card Preview Box */}
         <div className="mx-6 p-4 bg-slate-50 border border-slate-200/60 rounded-lg flex gap-3 items-center">
           <div className="w-10 h-10 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-400">
             <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -73,14 +67,10 @@ export default function DeleteConfirmationModal({ application, onClose }: Props)
             </p>
           </div>
         </div>
-
-        {/* Warning Callout Strip */}
         <div className="mx-6 mt-3 px-4 py-3 border-l-2 border-red-500 bg-red-50/40 text-[11px] leading-relaxed text-slate-600 flex gap-2 items-start">
           <span className="text-slate-400 font-semibold select-none">ⓘ</span>
           <p>Deleting this will permanently remove all interview notes, contact history, and associated documents from your pipeline.</p>
         </div>
-
-        {/* Action Button Strip */}
         <div className="mt-6 px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
           <button
             type="button"
@@ -102,7 +92,6 @@ export default function DeleteConfirmationModal({ application, onClose }: Props)
             {mutation.isPending ? 'Deleting...' : 'Delete'}
           </button>
         </div>
-
       </dialog>
     </div>
   );

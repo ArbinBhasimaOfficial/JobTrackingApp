@@ -7,6 +7,7 @@ import ApplicationFormModal from '../components/ApplicationFormModal';
 import { APPLICATION_STATUSES } from '../lib/schema';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import ViewApplicationModal from '../components/ViewApplicationModal';
+import Pagination from '../components/Pagination';
 
 export default function ApplicationListPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -15,13 +16,14 @@ export default function ApplicationListPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [deletingApp, setDeletingApp] = useState<JobApplication | null>(null);
   const [viewingApp, setViewingApp] = useState<JobApplication | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const { data: applications, isLoading } = useQuery<JobApplication[]>({
     queryKey: ['applications'],
     queryFn: async () => (await api.get('/applications')).data
   });
 
-  // Dynamic Filtering Logic
   const filteredApplications = applications?.filter(app => {
     const matchesSearch = app.companyName.toLowerCase().includes(searchQuery.toLowerCase())
       || app.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
@@ -78,7 +80,6 @@ export default function ApplicationListPage() {
           </button>
         </div>
       </header>
-
       <div className="flex flex-1">
         <aside className="w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between shrink-0">
           <div className="space-y-6">
@@ -143,65 +144,45 @@ export default function ApplicationListPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredApplications?.map((app) => (
-                  <tr key={app.id} className="hover:bg-slate-50/70 transition-colors group">
-                    <td className="px-6 py-4 font-semibold text-slate-900 flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
-                        {app.companyName[0].toUpperCase()}
-                      </div>
-                      <span className="truncate max-w-[160px]">
-                        {app.companyName}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 font-medium">
-                      {app.jobTitle}
-                    </td>
-                    <td className="px-6 py-4 text-slate-400 text-xs font-semibold tracking-wide">
-                      <span className="bg-slate-100 px-2 py-1 rounded text-slate-600 uppercase text-[10px]">
-                        {app.jobType.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium tracking-tight ${getStatusStyle(app.status)}`}>
-                        {app.status.charAt(0) + app.status.slice(1).toLowerCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-500 text-xs">
-                      {new Date(app.appliedDate).toLocaleDateString('en-US', {
-                        month: 'short', day: 'numeric', year: 'numeric'
-                      })}
-                    </td>
-                    <td className="px-6 py-4 text-right pr-8">
-                      <div className="inline-flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => setViewingApp(app)}
-                          className="p-1.5 hover:bg-slate-100 text-slate-500 hover:text-slate-900 rounded-md transition-colors"
-                          title="View details"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => setEditingApp(app)}
-                          className="p-1.5 hover:bg-slate-100 text-slate-500 hover:text-blue-600 rounded-md transition-colors"
-                          title="Edit application"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                        </button>
-                        <button
-                          // FIX: Removed native window.confirm check and hooked up state setter variable directly
-                          onClick={() => setDeletingApp(app)}
-                          className="p-1.5 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-md transition-colors"
-                          title="Delete application"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-16v1a3 3 0 003 3h10M4 7h16" /></svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredApplications
+                  ?.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((app) => (
+                    <tr key={app.id} className="hover:bg-slate-50/70 transition-colors group">
+                      <td className="px-6 py-4 font-semibold text-slate-900 flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+                          {app.companyName[0].toUpperCase()}
+                        </div>
+                        <span className="truncate max-w-[160px]">{app.companyName}</span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 font-medium">{app.jobTitle}</td>
+                      <td className="px-6 py-4 text-slate-400 text-xs font-semibold tracking-wide">
+                        <span className="bg-slate-100 px-2 py-1 rounded text-slate-600 uppercase text-[10px]">
+                          {app.jobType.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium tracking-tight ${getStatusStyle(app.status)}`}>
+                          {app.status.charAt(0) + app.status.slice(1).toLowerCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-500 text-xs">
+                        {new Date(app.appliedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </td>
+                      <td className="px-6 py-4 text-right pr-8">
+                        <div className="inline-flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => setViewingApp(app)} className="p-1.5 hover:bg-slate-100 text-slate-500 hover:text-slate-900 rounded-md transition-colors" title="View details">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          </button>
+                          <button onClick={() => setEditingApp(app)} className="p-1.5 hover:bg-slate-100 text-slate-500 hover:text-blue-600 rounded-md transition-colors" title="Edit application">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                          </button>
+                          <button onClick={() => setDeletingApp(app)} className="p-1.5 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-md transition-colors" title="Delete application">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-16v1a3 3 0 003 3h10M4 7h16" /></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 {filteredApplications?.length === 0 && (
                   <tr>
                     <td colSpan={6} className="text-center py-12 text-slate-400 text-sm">
@@ -211,22 +192,15 @@ export default function ApplicationListPage() {
                 )}
               </tbody>
             </table>
-
-            {/* CARD BANNER METRICS */}
-            <footer className="bg-[#f8fafc] border-t border-slate-200 px-6 py-4 flex items-center justify-between text-xs text-slate-500 font-medium">
-              <div>
-                Showing {filteredApplications?.length || 0} of {applications?.length || 0} applications
-              </div>
-              <div className="flex items-center gap-1">
-                <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-md text-slate-400 cursor-not-allowed font-semibold">Previous</button>
-                <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-md text-slate-700 hover:bg-slate-50 font-semibold shadow-sm">Next</button>
-              </div>
-            </footer>
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredApplications?.length || 0}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </main>
       </div>
-
-      {/* FOOTER METRICS LEGAL */}
       <footer className="bg-white border-t border-slate-200 px-8 py-4 flex items-center justify-between text-xs text-slate-400 mt-auto">
         <div>© {new Date().getFullYear()} CareerPipeline. All rights reserved.</div>
         <div className="flex items-center gap-4">
@@ -235,12 +209,9 @@ export default function ApplicationListPage() {
           <a href="#" className="hover:text-slate-600">Support</a>
         </div>
       </footer >
-
       {(isAddOpen || editingApp) && (
         <ApplicationFormModal onClose={() => { setIsAddOpen(false); setEditingApp(null); }} initialData={editingApp || undefined} />
       )}
-
-      {/* FIX: Mount your newly built custom modal box dynamically */}
       {deletingApp && (
         <DeleteConfirmationModal
           application={deletingApp}
