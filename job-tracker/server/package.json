@@ -4,7 +4,7 @@
   "description": "Job Tracking Application",
   "main": "server.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.server.json",
+    "build": "prisma generate && tsc -p tsconfig.server.json",
     "start": "tsx server.ts",
     "server": "nodemon --exec tsx server.ts"
   },
