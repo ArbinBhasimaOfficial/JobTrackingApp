@@ -4,7 +4,7 @@ import {
   type Prisma,
   type JobType,
   type ApplicationStatus,
-} from "@prisma/client";
+} from "../generated/client.js";
 
 export const createApplication = async (
   req: Request<
